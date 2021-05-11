@@ -16,7 +16,7 @@ public class QuestionService {
     /**
      * Это основной метод сохранения данных о вопросе
      @param title - Заголовок вопроса,
-     @param a,b,c,d - Текст вопроса,
+     @param a,b,c,d - Варианты ответов,
      @param numbers - Номера правильных ответов через ","
      Метод проверяет корректность введенных пользователем данных и
      сохраняет вопрос в список через questionDao
@@ -42,10 +42,9 @@ public class QuestionService {
     }
 
     /**
-     * Вспомогательный закрытый метод для метода save необходим для переобразования массива String в список строк
-     * и проверки пустых полей
-     @d
+     * Вспомогательный закрытый метод для метода save необходим для переобразования массива String в List<String>
      @param answers - Массив вопросов
+     *также метод проверяет наличие незаполненных вариантов ответов
      @exception InputException - если переменная emptyField отлична от 0
      @return answers - Список вопросов
      */
@@ -99,15 +98,15 @@ public class QuestionService {
     }
 
     /**
-     * Основной метод проверки ответов которые пользователь отметил проходя тест
-     @param answers - Массив строк - элемент массива - строка из двух цифр прим:
+     * Основной метод проверки теста
+     @param answers - Массив строк, где элемент массива - строка из двух цифр прим:
      answers[0] = "12" 
      где 1 это номер варианта ответа, а 2 -  порядковый номер вопроса на который отвечал пользователь,
      соответственно если в массиве есть "12","32" - это означает что на 2-й вопрос выбрано два
      варианта ответа 1,3.
-     Если какой-то из номеров вопороса не пришел в список значит ответы для этого вопроса
-     не были заполнены и пользователю выводится ошибка заполнения.
-     @return String с сообщением в зависимости от количества правильных ответов.
+     Если какой-то из номеров вопороса не пришел в список - значит ответы для этого вопроса
+     не были заполнены.
+     @return строка с сообщением в зависимости от количества правильных ответов.
      */
     public String checkTest(String[] answers) {
         if (answers == null){
@@ -152,19 +151,19 @@ public class QuestionService {
     /**
      * Вспомогательный закрытый метод для метода checkTest
      @param answers - Массив строк(см метод checkTest)
-     @return HasMap - ключ(номер вопроса), значение(номера чекнутых ответов)
+     @return HasMap - key(номер вопроса), value(номера отмеченых ответов)
      */
     private Map<Integer,Set<Integer>> userAnswerNumbers(String[] answers){
         Map<Integer,Set<Integer>> userAnswers = new HashMap<>();
         for (String answer : answers) {
-            int q = Integer.parseInt(answer) % 10;
-            int n = Integer.parseInt(answer)/10;
-            if (userAnswers.get(q) == null){
-                Set<Integer> set = new HashSet<>();
-                set.add(n);
-                userAnswers.put(q,set);
+            int key = Integer.parseInt(answer) % 10;
+            int value = Integer.parseInt(answer)/10;
+            if (userAnswers.get(key) == null){
+                Set<Integer> answerNumbersSet = new HashSet<>();
+                answerNumbersSet.add(value);
+                userAnswers.put(key,answerNumbersSet);
             }else {
-                userAnswers.get(q).add(n);
+                userAnswers.get(key).add(value);
             }
         }
         return userAnswers;
